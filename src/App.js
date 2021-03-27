@@ -1,7 +1,7 @@
 import React, { Suspense, useRef } from "react";
 import "./App.scss";
 import { Canvas, useFrame, useThree } from "react-three-fiber";
-import { useFBXLoader, OrbitControls } from 'drei'
+import { useFBXLoader, Html } from 'drei'
 import CameraControls from 'camera-controls'
 import * as THREE from "three"
 
@@ -58,10 +58,13 @@ const WithCameraControlers = ({position, modelRef}) => {
 	  const hasControlsUpdated = cameraControls.update( delta )
   })
   
-  
-  // setTimeout(function(){  cameraControls.setLookAt( position[0], 0, position[2] - 20, 10, 0, 0, true )}, 3000);
-  setTimeout(() => { console.log(modelRef.current); cameraControls.fitTo(modelRef.current, true); }, 3000)
-  return null
+  return (
+    <>
+      <Html>
+        <button style={{ width: '100px'}} onClick={() => { cameraControls.fitTo(modelRef.current, true)}}>Click Me</button>
+      </Html>
+    </>
+  )
 }
 
 function randomNumber(min, max){
