@@ -8,6 +8,7 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "camera-controls": "^1.27.1",
     "drei": "^1.5.3",
     "lerp": "^1.0.3",
     "node-sass": "^4.14.1",

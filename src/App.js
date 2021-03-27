@@ -1,25 +1,12 @@
-import React, { useRef, useEffect, useState, Suspense } from "react";
+import React, { Suspense, useRef } from "react";
 import "./App.scss";
-//Components
-import Header from "./components/header";
-import { Section } from "./components/section";
+import { Canvas, useFrame, useThree } from "react-three-fiber";
+import { useFBXLoader, OrbitControls } from 'drei'
+import CameraControls from 'camera-controls'
+import * as THREE from "three"
 
-// Page State
-import state from "./components/state";
-
-// R3F
-import { Canvas, useFrame } from "react-three-fiber";
-import { Html, useProgress, useGLTFLoader } from "drei";
-
-// React Spring
-import { a, useTransition } from "@react-spring/web";
-//Intersection Observer
-import { useInView } from "react-intersection-observer";
-
-function Model({ url }) {
-  const gltf = useGLTFLoader(url, true);
-  return <primitive object={gltf.scene} dispose={null} />;
-}
+const clock = new THREE.Clock()
+CameraControls.install( { THREE: THREE } )
 
 const Lights = () => {
   return (
@@ -46,111 +33,67 @@ const Lights = () => {
   );
 };
 
-const HTMLContent = ({
-  domContent,
-  children,
-  bgColor,
-  modelPath,
-  position,
-}) => {
-  const ref = useRef();
-  useFrame(() => (ref.current.rotation.y += 0.01));
-  const [refItem, inView] = useInView({
-    threshold: 0,
-  });
-  useEffect(() => {
-    inView && (document.body.style.background = bgColor);
-  }, [inView]);
-  return (
-    <Section factor={1.5} offset={1}>
-      <group position={[0, position, 0]}>
-        <mesh ref={ref} position={[0, -35, 0]}>
-          <Model url={modelPath} />
-        </mesh>
-        <Html fullscreen portal={domContent}>
-          <div ref={refItem} className='container'>
-            <h1 className='title'>{children}</h1>
-          </div>
-        </Html>
-      </group>
-    </Section>
-  );
-};
+const Model = ({position, modelRef, rotationY}) => {
 
-function Loader() {
-  const { active, progress } = useProgress();
-  const transition = useTransition(active, {
-    from: { opacity: 1, progress: 0 },
-    leave: { opacity: 0 },
-    update: { progress },
-  });
-  return transition(
-    ({ progress, opacity }, active) =>
-      active && (
-        <a.div className='loading' style={{ opacity }}>
-          <div className='loading-bar-container'>
-            <a.div className='loading-bar' style={{ width: progress }}></a.div>
-          </div>
-        </a.div>
-      )
-  );
+  const object = useFBXLoader("model.fbx")
+  
+  return (
+    <> 
+      <primitive
+        object={object}
+        ref={modelRef}
+        position={position}
+        rotation={[0, rotationY, 0]}
+      />
+    </>
+  )
+}
+
+const WithCameraControlers = ({position, modelRef}) => {
+  const { camera, gl } = useThree()
+  const cameraControls = new CameraControls( camera, gl.domElement )
+
+  useFrame(() => {
+    const delta = clock.getDelta()
+	  const hasControlsUpdated = cameraControls.update( delta )
+  })
+  
+  
+  // setTimeout(function(){  cameraControls.setLookAt( position[0], 0, position[2] - 20, 10, 0, 0, true )}, 3000);
+  setTimeout(() => { console.log(modelRef.current); cameraControls.fitTo(modelRef.current, true); }, 3000)
+  return null
+}
+
+function randomNumber(min, max){
+  const r = Math.random()*(max-min) + min
+  return Math.floor(r)
 }
 
 export default function App() {
-  const [events, setEvents] = useState();
-  const domContent = useRef();
-  const scrollArea = useRef();
-  const onScroll = (e) => (state.top.current = e.target.scrollTop);
-  useEffect(() => void onScroll({ target: scrollArea.current }), []);
+  const positionX = randomNumber(-100, 100)
+  const positionY = randomNumber(-50, 50)
+  const positionZ = randomNumber(-50, 50)
+
+  const rotationY = 0
+
+  const positionX2 = randomNumber(-100, 100)
+  const positionY2 = randomNumber(-50, 50)
+
+  const modelRef = useRef()
 
   return (
     <>
-      <Header />
-      {/* R3F Canvas */}
       <Canvas
         concurrent
         colorManagement
-        camera={{ position: [0, 0, 120], fov: 70 }}>
-        {/* Lights Component */}
+        camera={{ position: [positionX2, positionY2, 120], fov: 70 }}>
         <Lights />
-        <Suspense fallback={null}>
-          <HTMLContent
-            domContent={domContent}
-            bgColor='#f15946'
-            modelPath='/armchairYellow.gltf'
-            position={250}>
-            <span>Meet the new </span>
-            <span>shopping experience </span>
-            <span>for online chairs</span>
-          </HTMLContent>
-          <HTMLContent
-            domContent={domContent}
-            bgColor='#571ec1'
-            modelPath='/armchairGreen.gltf'
-            position={0}>
-            <span>Shit... we even</span>
-            <span>got different colors</span>
-          </HTMLContent>
-          <HTMLContent
-            domContent={domContent}
-            bgColor='#636567'
-            modelPath='/armchairGray.gltf'
-            position={-250}>
-            <span>And yes</span>
-            <span>we even got</span>
-            <span>monochrome!</span>
-          </HTMLContent>
+        <Suspense fallback={null} >
+          <Model position={[positionX, positionY, positionZ]} modelRef={modelRef} rotationY={rotationY}/>
+          {/* <OrbitControls /> */}
         </Suspense>
+        <WithCameraControlers position={[positionX, positionY, positionZ]} modelRef={modelRef}/>
       </Canvas>
-      <Loader />
-      <div
-        className='scrollArea'
-        ref={scrollArea}
-        onScroll={onScroll}
-        {...events}>
-        <div style={{ position: "sticky", top: 0 }} ref={domContent} />
-        <div style={{ height: `${state.pages * 100}vh` }} />
-      </div>
     </>
   );
 }
