@@ -61,7 +61,10 @@ const WithCameraControlers = ({position, modelRef}) => {
   return (
     <>
       <Html>
-        <button style={{ width: '100px'}} onClick={() => { cameraControls.fitTo(modelRef.current, true)}}>Click Me</button>
+        <button style={{ width: '100px'}} onClick={() => { 
+          cameraControls.fitTo(modelRef.current, true)
+          cameraControls.rotateTo(0, 1.56, true)
+        }}>Click Me</button>
       </Html>
     </>
   )
