@@ -55,7 +55,7 @@ const WithCameraControlers = ({ position, modelRef }) => {
 
   useFrame(() => {
     const delta = clock.getDelta();
-    const hasControlsUpdated = cameraControls.update(delta);
+    cameraControls.update(delta);
   });
 
   return (
@@ -64,7 +64,10 @@ const WithCameraControlers = ({ position, modelRef }) => {
         <button
           style={{ width: "100px" }}
           onClick={() => {
-            cameraControls.fitTo(modelRef.current, true);
+            var current = modelRef.current;
+            console.log({ current });
+            cameraControls.fitToBox(modelRef.current, true);
+            cameraControls.rotateTo(0, 1.56, true);
           }}
         >
           Click Me
