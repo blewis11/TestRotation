@@ -69,7 +69,7 @@ const WithCameraControlers = ({ position, modelRef, modelRef1 }) => {
   const { camera, scene, gl } = useThree();
   const cameraControls = new CameraControls(camera, gl.domElement);
   cameraControls.dollySpeed = 0;
-  cameraControls.azimuthRotateSpeed = 0.3; // negative value to invert rotation direction
+  cameraControls.azimuthRotateSpeed = -0.3; // negative value to invert rotation direction
   cameraControls.polarRotateSpeed = -0.3; // negative value to invert rotation direction
   cameraControls.truckSpeed = (1 / EPS) * 3;
   cameraControls.mouseButtons.wheel = CameraControls.ACTION.ZOOM;
